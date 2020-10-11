@@ -1,0 +1,4 @@
+include ':app'
+include ':libstreaming'
+rootProject.name = "OpenCamera"
+project(':libstreaming').projectDir = new File(rootProject.projectDir,"\\libstreaming\\app\\")

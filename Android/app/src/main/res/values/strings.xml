@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">OpenCamera</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+
+
+    <string name="button1">Scan local</string>
+    <string name="button2">Connect</string>
+    <string name="button3">Disconnect</string>
+    <string name="button4">Clear</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="logs_and_outputs">Logs will appear here..\n</string>
+    <string name="mic">Mic</string>
+    <string name="cam">Cam</string>
+    <string name="Indicator_myip">Device IP: </string>
+    <string name="Indicator_speed">Speed: </string>
+    <string name="Indicator_hostip">Host IP: </string>
+    <string name="destination_host_ip">Host IP</string>
+    <string name="checkBox">Camera</string>
+    <string name="checkBox2">Microphone</string>
+
+</resources>
