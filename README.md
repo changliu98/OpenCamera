@@ -32,4 +32,5 @@ Known INCOMPATIBLE:
 2. Obvious lagging if network is not stable.
 
 ### Further Plan
-We are transferring to RTSP based on FFmpeg and libstreaming
+Currently, this project is stagnant as both of us are busy applying for graduate schools. We got the hard coded RTSP based version working on both side, but no time to finish it.  
+We will not be able to continue developing until Dec  
