@@ -296,10 +296,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 public void run() {
                     TextView logsWindows = findViewById(R.id.textView);
                     logsWindows.append("RTSP Server started\n");
+                    CheckBox cameraCheckbox = findViewById(R.id.checkBox);
+                    cameraCheckbox.setChecked(true);
                 }
             });
-            CheckBox cameraCheckbox = findViewById(R.id.checkBox);
-            cameraCheckbox.setChecked(true);
+
 
             DataOutputStream out;
             try{
