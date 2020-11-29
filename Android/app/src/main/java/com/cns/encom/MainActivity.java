@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.SurfaceHolder;
 
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -228,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         TextView indicator_host = findViewById(R.id.Indicator_hostip);
         indicator_host.setText("Host: "+tarip);
         switchCam = true;
-        TextView spd = findViewById(R.id.Indicator_speed);
+        // TextView spd = findViewById(R.id.Indicator_speed);
         connectionUp = true;
         if(mConnThread != null && mConnThread.isAlive())
             logsWindows.append("You have already connected\n");
@@ -246,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
         TextView logsWindows = findViewById(R.id.textView);
         logsWindows.append("You have disconnected\n");
+        TextView indicator_host = findViewById(R.id.Indicator_hostip);
+        indicator_host.setText("Host: 0.0.0.0");
         mConnThread = null;
         switchCam = false;
     }
@@ -272,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             SessionBuilder.getInstance()
                     .setSurfaceView(mSurfaceView)
-                    .setPreviewOrientation(0)
+                    .setPreviewOrientation(90)
                     .setContext(getApplicationContext())
                     .setAudioEncoder(SessionBuilder.AUDIO_NONE)
                     .setVideoEncoder(SessionBuilder.VIDEO_H264);
@@ -295,6 +298,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     logsWindows.append("RTSP Server started\n");
                 }
             });
+            CheckBox cameraCheckbox = findViewById(R.id.checkBox);
+            cameraCheckbox.setChecked(true);
 
             DataOutputStream out;
             try{
@@ -337,6 +342,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
             mSurfaceHolder.setFormat(PixelFormat.OPAQUE);
+            cameraCheckbox = findViewById(R.id.checkBox);
+            cameraCheckbox.setChecked(false);
         }
 
         int getRandomNumber(int min, int max){
