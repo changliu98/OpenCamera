@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EncomService", "EncomServic
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EncomCamera", "..\EncomCamera\EncomCamera.vcxproj", "{A8AE758E-3CFB-48DF-84F3-23B54F92BC92}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "OpenCamera DEsktop Service", "..\OpenCamera DEsktop Service\OpenCamera DEsktop Service.vdproj", "{559C824B-9F70-46F1-83EC-2A216DAAD487}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,10 @@ Global
 		{A8AE758E-3CFB-48DF-84F3-23B54F92BC92}.Release|x64.Build.0 = Release|x64
 		{A8AE758E-3CFB-48DF-84F3-23B54F92BC92}.Release|x86.ActiveCfg = Release|Win32
 		{A8AE758E-3CFB-48DF-84F3-23B54F92BC92}.Release|x86.Build.0 = Release|Win32
+		{559C824B-9F70-46F1-83EC-2A216DAAD487}.Debug|x64.ActiveCfg = Debug
+		{559C824B-9F70-46F1-83EC-2A216DAAD487}.Debug|x86.ActiveCfg = Debug
+		{559C824B-9F70-46F1-83EC-2A216DAAD487}.Release|x64.ActiveCfg = Release
+		{559C824B-9F70-46F1-83EC-2A216DAAD487}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
