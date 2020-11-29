@@ -301,7 +301,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 }
             });
 
-
             DataOutputStream out;
             try{
                 out = new DataOutputStream(socket.getOutputStream());
@@ -341,10 +340,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 catch(InterruptedException e){break;}
             }
 
-            mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
-            mSurfaceHolder.setFormat(PixelFormat.OPAQUE);
-            cameraCheckbox = findViewById(R.id.checkBox);
-            cameraCheckbox.setChecked(false);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
+                    mSurfaceHolder.setFormat(PixelFormat.OPAQUE);
+                    CheckBox cameraCheckbox = findViewById(R.id.checkBox);
+                    cameraCheckbox.setChecked(false);
+                }
+            });
         }
 
         int getRandomNumber(int min, int max){
