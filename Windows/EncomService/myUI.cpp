@@ -202,7 +202,7 @@ void UIManager::draw_UI()
 			{
 				ImGui::Text("My IP: %s", myNetworkManager->getMyIP().c_str());
 				lock_Network.unlock();
-				ImGui::Text("Speed: 0");
+				ImGui::Text("Speed (fps): %.2f", myNetworkManager->framesPerSecond);
 				ImGui::Text("Sender IP: %s", myNetworkManager->getMyClientIP().c_str());
 			}
 			else

@@ -80,6 +80,8 @@ private:
 	void background();
 	// camera thread for local rtsp server
 	void localCamera();
+	// update socket connection status
+	void updateConnectionStatus();
 
 	// check in block list
 	bool checkBlockList(IN_ADDR newAddr);
@@ -94,6 +96,8 @@ public:
 	// UI checkbox
 	bool enable_camera = false;
 	bool toggleCamera = false;
+	// fps (for UI speed)
+	float framesPerSecond = 0.0f;
 private:
 	// ip information
 	IN_ADDR my_ip_addr = {};
@@ -114,6 +118,7 @@ private:
 	// camera thread
 	std::thread trdCamera;
 	bool trdCameraRunning = false;
+	bool scCameraConnected = false; // is connection socket still connected?
 	int rtspServerPort = 1234;
 	// set client address for more information
 	SOCKADDR_IN myClientSocketAddr = {};

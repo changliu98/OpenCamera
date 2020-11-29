@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.hardware.camera2.CameraManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -235,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         switchCam = true;
         TextView spd = findViewById(R.id.Indicator_speed);
         connectionUp = true;
-        if(mConnThread != null)
+        if(mConnThread != null && mConnThread.isAlive())
             logsWindows.append("You have already connected\n");
         else{
             mConnThread = new connectionThread(tarip, this);
@@ -293,6 +296,13 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             mainActivity.startService(service);
             rtspServerStarted = true;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    TextView logsWindows = findViewById(R.id.textView);
+                    logsWindows.append("RTSP Server started\n");
+                }
+            });
 
             DataOutputStream out;
             try{
@@ -306,14 +316,26 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             Log.d("connectionThread", "newPort = " + newPort + " sent");
 
             while(connectionUp){
+                try{out.writeChar(1);}
+                catch(IOException e){break;}
                 try{Thread.sleep(50);}
                 catch(InterruptedException e){break;}
             }
 
             mainActivity.stopService(service);
             rtspServerStarted = false;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    TextView logsWindows = findViewById(R.id.textView);
+                    logsWindows.append("RTSP Server stopped\n");
+                }
+            });
 
-            try{socket.close();}
+            try{
+                socket.shutdownOutput();
+                socket.close();
+            }
             catch(IOException e){}
         }
 
