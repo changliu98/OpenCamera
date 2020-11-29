@@ -4,6 +4,7 @@
 #include <WS2tcpip.h>
 
 #include <string>
+#include <sstream>
 #include <deque>
 #include <thread>
 #include <mutex>
@@ -61,8 +62,6 @@ public:
 	// get camera status (for UI)
 	bool isCameraGood();
 
-	void test_start_local_camera();
-
 private:
 	void set_my_ip();
 	// start listening for connections
@@ -81,6 +80,8 @@ private:
 	void background();
 	// camera thread for local rtsp server
 	void localCamera();
+	// update socket connection status
+	void updateConnectionStatus();
 
 	// check in block list
 	bool checkBlockList(IN_ADDR newAddr);
@@ -95,6 +96,8 @@ public:
 	// UI checkbox
 	bool enable_camera = false;
 	bool toggleCamera = false;
+	// fps (for UI speed)
+	float framesPerSecond = 0.0f;
 private:
 	// ip information
 	IN_ADDR my_ip_addr = {};
@@ -115,6 +118,8 @@ private:
 	// camera thread
 	std::thread trdCamera;
 	bool trdCameraRunning = false;
+	bool scCameraConnected = false; // is connection socket still connected?
+	int rtspServerPort = 1234;
 	// set client address for more information
 	SOCKADDR_IN myClientSocketAddr = {};
 	// status for waiting click events

@@ -3,7 +3,7 @@
 #include "myCamera.hpp"
 
 #include <cstdlib>
-#include <ctime>
+#include <chrono>
 #include <vector>
 #include <stdio.h>
 
@@ -137,16 +137,6 @@ void NetworkManager::process()
 	}
 }
 
-
-void NetworkManager::test_start_local_camera()
-{
-	if (trdCameraRunning) return;
-	if (trdCamera.joinable())
-		trdCamera.join();
-	up_camera = true;
-	trdCamera = std::thread(&NetworkManager::localCamera, this);
-}
-
 void NetworkManager::localCamera()
 {
 	trdCameraRunning = true;
@@ -162,7 +152,7 @@ void NetworkManager::localCamera()
 		lock_UI.unlock();
 		return;
 	}
-	bool success = camera->setup("192.168.137.158", "1234");
+	bool success = camera->setup(getMyClientIP(), std::to_string(rtspServerPort));
 	if (!success)
 	{
 		lock_UI.lock();
@@ -174,10 +164,24 @@ void NetworkManager::localCamera()
 	if (myUIManager)
 		myUIManager->pushMessage("Camera thread started", UIManager::MESSAGE_SEVERITY::M_INFO);
 	lock_UI.unlock();
-	while (up_camera && success)
+	int frames = 0;
+	auto startTime = std::chrono::high_resolution_clock::now();
+	while (up_camera && success && scCameraConnected)
 	{
-		if(enable_camera)
+		if (enable_camera)
+		{
 			camera->loop();
+			frames++;
+			if (frames >= 60)
+			{
+				auto endTime = std::chrono::high_resolution_clock::now();
+				float duration = std::chrono::duration<float, std::milli>(endTime - startTime).count();
+				framesPerSecond = frames / (duration / 1000.0f);
+				frames = 0;
+				startTime = endTime;
+			}
+		}
+		else framesPerSecond = 0.0f;
 		if (toggleCamera)
 		{
 			toggleCamera = false;
@@ -190,6 +194,7 @@ void NetworkManager::localCamera()
 	lock_UI.unlock();
 	delete camera;
 	trdCameraRunning = false;
+	framesPerSecond = 0.0f;
 }
 
 void NetworkManager::background()
@@ -201,7 +206,10 @@ void NetworkManager::background()
 		while (!GLOB_PROGRAM_EXIT && up_connection)
 		{
 			if (scClientConn != INVALID_SOCKET)
+			{
 				closesocket(scClientConn);
+				scClientConn = INVALID_SOCKET;
+			}
 			int addrlen = sizeof(SOCKADDR_IN);
 			scClientConn = accept(scLocalConn, (SOCKADDR*)&myClientSocketAddr, &addrlen);
 			// test connected client in block list
@@ -241,13 +249,47 @@ void NetworkManager::background()
 				}
 				else
 				{
+					uint32_t tmpVal;
+					std::stringstream ss;
+					for (int i = 0; i < 4; i++)
+					{
+						int val;
+						recv(scClientConn, (char*)&tmpVal, sizeof(uint32_t), 0);
+						if (isLittleEndian)
+							val = NetworkManager::reverse_bytes_int(tmpVal);
+						else
+							val = tmpVal;
+						ss << val;
+						if (i < 3) ss << ".";
+					}
+					std::string recvIPAddress = ss.str();
+					if (recvIPAddress != "0.0.0.0")
+						inet_pton(AF_INET, recvIPAddress.c_str(), &(myClientSocketAddr.sin_addr));
+					// get 4 int as IP
 					my_client_ip_addr = myClientSocketAddr.sin_addr;
 					lock_UI.lock();
 					if (myUIManager)
 						myUIManager->pushMessage("Accepted. Device IP address = " + getMyClientIP() + "\n", UIManager::MESSAGE_SEVERITY::M_INFO);
 					lock_UI.unlock();
-					// TODO: Get Rtsp Port and Set Global Status (Camera Status)
+					// Get Rtsp Port and Set Global Status (Camera Status)
+					tmpVal = rtspServerPort;
+					recv(scClientConn, (char*)&tmpVal, sizeof(uint32_t), 0);
+					if (isLittleEndian)
+						rtspServerPort = NetworkManager::reverse_bytes_int(tmpVal);
+					else
+						rtspServerPort = tmpVal;
 
+					if (trdCamera.joinable())
+						trdCamera.join();
+					up_camera = true;
+					scCameraConnected = true;
+					trdCamera = std::thread(&NetworkManager::localCamera, this);
+					while (!GLOB_PROGRAM_EXIT && up_connection)
+					{
+						updateConnectionStatus(); // check the connection status, stop camera thread if disconnected
+						std::this_thread::sleep_for(std::chrono::milliseconds(40));
+						if (!trdCameraRunning) break;
+					}
 				}
 			}
 		}
@@ -259,6 +301,27 @@ void NetworkManager::background()
 		myUIManager->networkManager_called = false; // set on error, so that background process could restart
 		lock_UI.unlock();
 	}
+}
+
+void NetworkManager::updateConnectionStatus()
+{
+	if (scClientConn == INVALID_SOCKET)
+	{
+		scCameraConnected = false;
+		return;
+	}
+	if (!scCameraConnected) return;
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(scClientConn, &fds);
+	const timeval val = { 0, 100 };
+	if (select(scClientConn, &fds, NULL, NULL, &val) > 0)
+	{
+		char tmp;
+		if (recv(scClientConn, &tmp, 1, 0) <= 0) scCameraConnected = false;
+	}
+	else
+		scCameraConnected = false;
 }
 
 void NetworkManager::ui_accept()
