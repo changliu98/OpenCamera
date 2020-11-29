@@ -160,13 +160,13 @@ void ComponentCamera::desetup()
 	endMemory();
 }
 
-void ComponentCamera::loop()
+void ComponentCamera::loop(bool enabled)
 {
 	if (av_read_frame(ctx_format, &packet) >= 0 && packet.stream_index == video_stream_index)
 	{
 		int check = 0;
 		int result = avcodec_decode_video2(ctx_codec, picture.picture, &check, &packet);
-		if (result && check)
+		if (result && check && enabled)
 		{
 			sws_scale(ctx_convert, picture.picture->data, picture.picture->linesize, 0,
 				ctx_codec->height, picture.picture_rgb->data, picture.picture_rgb->linesize);

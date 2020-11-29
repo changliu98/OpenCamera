@@ -168,9 +168,9 @@ void NetworkManager::localCamera()
 	auto startTime = std::chrono::high_resolution_clock::now();
 	while (up_camera && success && scCameraConnected)
 	{
+		camera->loop(enable_camera);
 		if (enable_camera)
 		{
-			camera->loop();
 			frames++;
 			if (frames >= 60)
 			{

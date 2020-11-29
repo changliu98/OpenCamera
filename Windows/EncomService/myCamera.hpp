@@ -40,7 +40,7 @@ public:
 	bool setup(const std::string address, const std::string port);
 	void desetup();
 	bool toggleCamera();
-	void loop();
+	void loop(bool enabled);
 
 private:
 	bool createMemFile();
