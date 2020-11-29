@@ -1,13 +1,12 @@
 package com.cns.encom;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.hardware.camera2.CameraManager;
 import android.net.wifi.WifiInfo;
@@ -19,25 +18,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.SurfaceHolder;
 
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import net.majorkernelpanic.streaming.gl.SurfaceView;
 import net.majorkernelpanic.streaming.SessionBuilder;
 import net.majorkernelpanic.streaming.rtsp.RtspServer;
-import net.majorkernelpanic.streaming.Session;
-import net.majorkernelpanic.streaming.SessionBuilder;
-import net.majorkernelpanic.streaming.audio.AudioQuality;
-import net.majorkernelpanic.streaming.gl.SurfaceView;
-import net.majorkernelpanic.streaming.video.VideoQuality;
 
 import java.net.InetAddress;
 import java.io.*;
@@ -236,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         TextView indicator_host = findViewById(R.id.Indicator_hostip);
         indicator_host.setText("Host: "+tarip);
         switchCam = true;
-        TextView spd = findViewById(R.id.Indicator_speed);
+        // TextView spd = findViewById(R.id.Indicator_speed);
         connectionUp = true;
         if(mConnThread != null && mConnThread.isAlive())
             logsWindows.append("You have already connected\n");
@@ -254,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
         TextView logsWindows = findViewById(R.id.textView);
         logsWindows.append("You have disconnected\n");
+        TextView indicator_host = findViewById(R.id.Indicator_hostip);
+        indicator_host.setText("Host: 0.0.0.0");
         mConnThread = null;
         switchCam = false;
     }
@@ -280,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             SessionBuilder.getInstance()
                     .setSurfaceView(mSurfaceView)
-                    .setPreviewOrientation(0)
+                    .setPreviewOrientation(90)
                     .setContext(getApplicationContext())
                     .setAudioEncoder(SessionBuilder.AUDIO_NONE)
                     .setVideoEncoder(SessionBuilder.VIDEO_H264);
@@ -303,6 +298,8 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     logsWindows.append("RTSP Server started\n");
                 }
             });
+            CheckBox cameraCheckbox = findViewById(R.id.checkBox);
+            cameraCheckbox.setChecked(true);
 
             DataOutputStream out;
             try{
@@ -337,10 +334,28 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 socket.close();
             }
             catch(IOException e){}
+
+            while(isRTSPServiceAlive()){
+                try{Thread.sleep(50);}
+                catch(InterruptedException e){break;}
+            }
+
+            mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
+            mSurfaceHolder.setFormat(PixelFormat.OPAQUE);
+            cameraCheckbox = findViewById(R.id.checkBox);
+            cameraCheckbox.setChecked(false);
         }
 
         int getRandomNumber(int min, int max){
             return (int)((Math.random() * (max - min)) + min);
+        }
+        boolean isRTSPServiceAlive(){
+            ActivityManager manager = (ActivityManager)getSystemService(ACTIVITY_SERVICE);
+            for(ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)){
+                if("RtspServer".equals(service.service.getClassName()))
+                    return true;
+            }
+            return false;
         }
     }
 }

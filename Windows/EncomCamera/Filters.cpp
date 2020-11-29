@@ -55,42 +55,47 @@ bool CVCam::isReady()
 
 void CVCam::update()
 {
-    // check if process is alive
-    PROCESSENTRY32 processInfo{};
-    processInfo.dwSize = sizeof(PROCESSENTRY32);
-    HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
-    DWORD processID = NULL;
-    if (processesSnapshot != INVALID_HANDLE_VALUE)
+    counter++;
+    if (counter >= 30)
     {
-        Process32First(processesSnapshot, &processInfo);
-        if (!lstrcmpW(processName, processInfo.szExeFile))
+        // check if process is alive
+        PROCESSENTRY32 processInfo{};
+        processInfo.dwSize = sizeof(PROCESSENTRY32);
+        HANDLE processesSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+        DWORD processID = NULL;
+        if (processesSnapshot != INVALID_HANDLE_VALUE)
         {
-            processID = processInfo.th32ProcessID;
-        }
-        if (!processID)
-        {
-            while (Process32Next(processesSnapshot, &processInfo))
+            Process32First(processesSnapshot, &processInfo);
+            if (!lstrcmpW(processName, processInfo.szExeFile))
             {
-                if (!lstrcmpW(processName, processInfo.szExeFile))
+                processID = processInfo.th32ProcessID;
+            }
+            if (!processID)
+            {
+                while (Process32Next(processesSnapshot, &processInfo))
                 {
-                    processID = processInfo.th32ProcessID;
-                    break;
+                    if (!lstrcmpW(processName, processInfo.szExeFile))
+                    {
+                        processID = processInfo.th32ProcessID;
+                        break;
+                    }
                 }
             }
+            CloseHandle(processesSnapshot);
         }
-        CloseHandle(processesSnapshot);
-    }
-    if (processID)
-    {
-        DbgLog((LOG_ERROR, 1, TEXT("Process found")));
-        readyProcess = true;
-        tryMap();
-    }
-    else
-    {
-        DbgLog((LOG_ERROR, 1, TEXT("Process not found")));
-        readyProcess = false;
-        unMap();
+        if (processID)
+        {
+            DbgLog((LOG_ERROR, 1, TEXT("Process found")));
+            readyProcess = true;
+            tryMap();
+        }
+        else
+        {
+            DbgLog((LOG_ERROR, 1, TEXT("Process not found")));
+            readyProcess = false;
+            unMap();
+        }
+        counter = 0;
     }
     testMemory();
 }
@@ -272,6 +277,7 @@ start:
     if (!m_pParent->isReady())
     {
         memset(pData, 0, lDataLen);
+        Sleep(10);
     }
     else
     {
@@ -293,6 +299,7 @@ start:
                 else
                 {
                     ReleaseMutex(m_pParent->hMutex1);
+                    Sleep(5);
                     goto start;
                 }
             }
@@ -311,6 +318,7 @@ start:
                 else
                 {
                     ReleaseMutex(m_pParent->hMutex2);
+                    Sleep(5);
                     goto start;
                 }
             }

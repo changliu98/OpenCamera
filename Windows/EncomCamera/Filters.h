@@ -34,6 +34,7 @@ private:
     void testMemory(); // test camera on or off
 
 public:
+    int counter = 0;
     bool lastUsedFile1 = false; // is last read file1 ?
     bool readyProcess = false; // is EncomService alive ?
     bool readyMapping = false; // is file mapping ready ?
