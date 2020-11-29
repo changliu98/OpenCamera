@@ -351,8 +351,7 @@ void UIManager::draw_UI()
 			if (myNetworkManager)
 			{
 				ImGui::PushStyleColor(ImGuiCol_CheckMark, (myNetworkManager->isCameraGood()) ? window_color_status_good : window_color_status_bad);
-				if (ImGui::CheckboxCustomized("Camera", &myNetworkManager->enable_camera) && myNetworkManager->enable_camera)
-					myNetworkManager->test_start_local_camera(); // TODO: remove this after testing
+				ImGui::CheckboxCustomized("Camera", &myNetworkManager->enable_camera);
 			}
 			else
 			{

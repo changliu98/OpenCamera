@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -52,6 +53,10 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     CameraManager camMgr;
     private SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceHolder;
+    private connectionThread mConnThread = null;
+    boolean connectionUp = false;
+    boolean rtspServerStarted = false;
+    String[] ips = {"0","0","0","0"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,20 +75,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         mSurfaceView = findViewById(R.id.surfaceView);
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
-
-        SessionBuilder.getInstance()
-                .setSurfaceView(mSurfaceView)
-                .setPreviewOrientation(0)
-                .setContext(getApplicationContext())
-                .setAudioEncoder(SessionBuilder.AUDIO_NONE)
-                .setVideoEncoder(SessionBuilder.VIDEO_H264);
-
-        // Sets the port of the RTSP server to 1234
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putString(RtspServer.KEY_PORT, String.valueOf(1234));
-        editor.apply();
-
-        this.startService(new Intent(this,RtspServer.class));
     }
 
     @Override
@@ -102,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }catch (UnknownHostException e){
             strip = "error";
         }
-        String[] ips={"0","0","0","0"};
         try {
             //Only works on ipv4!
             ips = strip.split("\\.");
@@ -244,12 +234,92 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         indicator_host.setText("Host: "+tarip);
         switchCam = true;
         TextView spd = findViewById(R.id.Indicator_speed);
-
+        connectionUp = true;
+        if(mConnThread != null)
+            logsWindows.append("You have already connected\n");
+        else{
+            mConnThread = new connectionThread(tarip, this);
+            mConnThread.start();
+        }
     }
 
     public void disconnect_onclick(View view) {
-
+        connectionUp = false;
+        if(mConnThread != null){
+            try{mConnThread.join();}
+            catch(InterruptedException e){mConnThread.interrupt();}
+        }
+        TextView logsWindows = findViewById(R.id.textView);
+        logsWindows.append("You have disconnected\n");
+        mConnThread = null;
         switchCam = false;
+    }
+
+    public class connectionThread extends Thread{
+        String ipaddress;
+        MainActivity mainActivity;
+        Intent service;
+
+        public connectionThread(String ipaddress, MainActivity mainActivity){
+            this.ipaddress = ipaddress;
+            this.mainActivity = mainActivity;
+            service = new Intent(mainActivity, RtspServer.class);
+        }
+
+        @Override
+        public void run(){
+            Socket socket;
+            try {
+                socket = new Socket(ipaddress, 65500);
+            }catch(IOException e){return;}
+
+            Log.d("connectionThread", "run: socket connected");
+
+            SessionBuilder.getInstance()
+                    .setSurfaceView(mSurfaceView)
+                    .setPreviewOrientation(0)
+                    .setContext(getApplicationContext())
+                    .setAudioEncoder(SessionBuilder.AUDIO_NONE)
+                    .setVideoEncoder(SessionBuilder.VIDEO_H264);
+
+            int newPort = getRandomNumber(1000, 2000);
+            // Sets the port of the RTSP server to random number
+            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mainActivity).edit();
+            editor.putString(RtspServer.KEY_PORT, String.valueOf(newPort));
+            editor.apply();
+
+            if(rtspServerStarted)
+                mainActivity.stopService(service);
+
+            mainActivity.startService(service);
+            rtspServerStarted = true;
+
+            DataOutputStream out;
+            try{
+                out = new DataOutputStream(socket.getOutputStream());
+                for(int i = 3; i >= 0; i--)
+                    out.writeInt(Integer.parseInt(ips[i]));
+                out.writeInt(newPort);
+            }
+            catch(IOException e){return;}
+
+            Log.d("connectionThread", "newPort = " + newPort + " sent");
+
+            while(connectionUp){
+                try{Thread.sleep(50);}
+                catch(InterruptedException e){break;}
+            }
+
+            mainActivity.stopService(service);
+            rtspServerStarted = false;
+
+            try{socket.close();}
+            catch(IOException e){}
+        }
+
+        int getRandomNumber(int min, int max){
+            return (int)((Math.random() * (max - min)) + min);
+        }
     }
 }
 

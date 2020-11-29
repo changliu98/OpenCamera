@@ -137,16 +137,6 @@ void NetworkManager::process()
 	}
 }
 
-
-void NetworkManager::test_start_local_camera()
-{
-	if (trdCameraRunning) return;
-	if (trdCamera.joinable())
-		trdCamera.join();
-	up_camera = true;
-	trdCamera = std::thread(&NetworkManager::localCamera, this);
-}
-
 void NetworkManager::localCamera()
 {
 	trdCameraRunning = true;
@@ -162,7 +152,7 @@ void NetworkManager::localCamera()
 		lock_UI.unlock();
 		return;
 	}
-	bool success = camera->setup("192.168.137.158", "1234");
+	bool success = camera->setup(getMyClientIP(), std::to_string(rtspServerPort));
 	if (!success)
 	{
 		lock_UI.lock();
@@ -241,13 +231,40 @@ void NetworkManager::background()
 				}
 				else
 				{
+					uint32_t tmpVal;
+					std::stringstream ss;
+					for (int i = 0; i < 4; i++)
+					{
+						int val;
+						recv(scClientConn, (char*)&tmpVal, sizeof(uint32_t), 0);
+						if (isLittleEndian)
+							val = NetworkManager::reverse_bytes_int(tmpVal);
+						else
+							val = tmpVal;
+						ss << val;
+						if (i < 3) ss << ".";
+					}
+					std::string recvIPAddress = ss.str();
+					if (recvIPAddress != "0.0.0.0")
+						inet_pton(AF_INET, recvIPAddress.c_str(), &(myClientSocketAddr.sin_addr));
+					// get 4 int as IP
 					my_client_ip_addr = myClientSocketAddr.sin_addr;
 					lock_UI.lock();
 					if (myUIManager)
 						myUIManager->pushMessage("Accepted. Device IP address = " + getMyClientIP() + "\n", UIManager::MESSAGE_SEVERITY::M_INFO);
 					lock_UI.unlock();
-					// TODO: Get Rtsp Port and Set Global Status (Camera Status)
+					// Get Rtsp Port and Set Global Status (Camera Status)
+					tmpVal = rtspServerPort;
+					recv(scClientConn, (char*)&tmpVal, sizeof(uint32_t), 0);
+					if (isLittleEndian)
+						rtspServerPort = NetworkManager::reverse_bytes_int(tmpVal);
+					else
+						rtspServerPort = tmpVal;
 
+					if (trdCamera.joinable())
+						trdCamera.join();
+					up_camera = true;
+					trdCamera = std::thread(&NetworkManager::localCamera, this);
 				}
 			}
 		}
