@@ -229,8 +229,6 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         TextView indicator_host = findViewById(R.id.Indicator_hostip);
         indicator_host.setText("Host: "+tarip);
         switchCam = true;
-        // TextView spd = findViewById(R.id.Indicator_speed);
-        connectionUp = true;
         if(mConnThread != null && mConnThread.isAlive())
             logsWindows.append("You have already connected\n");
         else{
@@ -240,17 +238,23 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     public void disconnect_onclick(View view) {
-        connectionUp = false;
-        if(mConnThread != null){
-            try{mConnThread.join();}
-            catch(InterruptedException e){mConnThread.interrupt();}
+
+        if(connectionUp) {
+            if (mConnThread != null) {
+                try {
+                    mConnThread.join();
+                } catch (InterruptedException e) {
+                    mConnThread.interrupt();
+                }
+            }
+            TextView logsWindows = findViewById(R.id.textView);
+            logsWindows.append("You have disconnected\n");
+            TextView indicator_host = findViewById(R.id.Indicator_hostip);
+            indicator_host.setText("Host: 0.0.0.0");
+            mConnThread = null;
+            switchCam = false;
+            connectionUp = false;
         }
-        TextView logsWindows = findViewById(R.id.textView);
-        logsWindows.append("You have disconnected\n");
-        TextView indicator_host = findViewById(R.id.Indicator_hostip);
-        indicator_host.setText("Host: 0.0.0.0");
-        mConnThread = null;
-        switchCam = false;
     }
 
     public class connectionThread extends Thread{
@@ -288,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             if(rtspServerStarted)
                 mainActivity.stopService(service);
+            connectionUp = true;
 
             mainActivity.startService(service);
             rtspServerStarted = true;
