@@ -18,7 +18,7 @@
     <string name="Indicator_speed">Speed: </string>
     <string name="Indicator_hostip">Host IP: </string>
     <string name="destination_host_ip">Host IP</string>
-    <string name="checkBox">Camera</string>
-    <string name="checkBox2">Microphone</string>
+    <string name="checkBox">Camera Status</string>
+    <string name="switch1">Dark mode</string>
 
 </resources>

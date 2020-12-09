@@ -71,11 +71,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         mSurfaceView = findViewById(R.id.surfaceView);
         mSurfaceHolder = mSurfaceView.getHolder();
         mSurfaceHolder.addCallback(this);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
         // ***************************Display device IP***************************
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         int ip = wifiInfo.getIpAddress();
@@ -99,12 +95,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         TextView myip = findViewById(R.id.Indicator_myip);
         myip.setText("Device IP: "+tip);
 
-        // ***************************Start of Display available cameras***************************
-
         TextView logsWindows = findViewById(R.id.textView);
-
         try {
-            logsWindows.append("Online cameras: "+Arrays.toString(camMgr.getCameraIdList())+"\n");
+            logsWindows.setText("Online cameras: "+Arrays.toString(camMgr.getCameraIdList())+"\n");
         }catch (Exception e){
             logsWindows.append(e.getMessage());
         }
@@ -115,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     new String[]{Manifest.permission.CAMERA}, 1);
         }
     }
+
 
     public void clear_oncliek(View view){
         Toast.makeText(view.getContext(), "Console cleared", Toast.LENGTH_SHORT).show();
