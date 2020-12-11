@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
 
-    public void clear_oncliek(View view){
+    public void clear_onclick(View view){
         Toast.makeText(view.getContext(), "Console cleared", Toast.LENGTH_SHORT).show();
         TextView logsWindows = findViewById(R.id.textView);
         logsWindows.setText("");
@@ -232,8 +232,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     }
 
     public void disconnect_onclick(View view) {
+        TextView logsWindows = findViewById(R.id.textView);
 
-        if(connectionUp) {
+        try{
             if (mConnThread != null) {
                 try {
                     mConnThread.join();
@@ -241,14 +242,17 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     mConnThread.interrupt();
                 }
             }
-            TextView logsWindows = findViewById(R.id.textView);
             logsWindows.append("You have disconnected\n");
             TextView indicator_host = findViewById(R.id.Indicator_hostip);
             indicator_host.setText("Host: 0.0.0.0");
             mConnThread = null;
             switchCam = false;
             connectionUp = false;
+        } catch(Exception err){
+            Log.d("Disconnect", "disconnect_onclick: "+err.getMessage());
+            logsWindows.append(err.getMessage()+"\n");
         }
+
     }
 
     public class connectionThread extends Thread{

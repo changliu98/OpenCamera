@@ -13,7 +13,7 @@ Software compatibility:
 ![](https://img.shields.io/badge/-OK-black?style=flat&logo=Firefox&logoColor=ff6611)
 ![](https://img.shields.io/badge/-OK-black?style=flat&logo=Google%20Chrome&logoColor=4285F4)
 ![](https://img.shields.io/badge/-OK-black?style=flat&logo=microsoft%20edge&logoColor=0078D7)
-![](https://img.shields.io/badge/-OK-black?style=flat&logo=zoom&logoColor=blue)
+![](https://img.shields.io/badge/Zoom-OK-black?style=flat&labelColor=black)
 ![](https://img.shields.io/badge/-OK-black?style=flat&logo=discord&logoColor=7289d9)
 ![](https://img.shields.io/badge/-INCOMPATIBLE-black?style=flat&logo=skype&logoColor=00aff0)
 ![](https://img.shields.io/badge/-INCOMPATIBLE-black?style=flat&logo=Telegram)
