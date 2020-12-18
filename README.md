@@ -1,4 +1,6 @@
 # OpenCamera
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fyukimuon%2FOpenCamera.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fyukimuon%2FOpenCamera?ref=badge_shield)
+
 
 ### What this app does
 Android->Windows Camera Sharing App
@@ -30,3 +32,7 @@ v2.1.1 Fixed: Ugly purple banner
 
 ### Further Plan
 Finished the transition to RTSP protocol. Future releases will only be fixes for critical bugs
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fyukimuon%2FOpenCamera.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fyukimuon%2FOpenCamera?ref=badge_large)
