@@ -20,7 +20,7 @@ Software compatibility:
 
 ### Release
 <a href="https://github.com/yukimuon/OpenCamera/releases">Github release page</a>  
-<a href='https://play.google.com/store/apps/details?id=com.cns.encom&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='150px'></a>
+<a href='https://play.google.com/store/apps/details?id=com.cns.encom'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width='150px'></a>
 
 ### Release logs
 v1.0.0 Error "fail to bind cam socket or mic socket" under hotspot. Noticeable lagging under slow network  
