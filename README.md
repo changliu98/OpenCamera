@@ -1,12 +1,22 @@
 # OpenCamera
 
+[![Github release](https://img.shields.io/github/downloads/yukimuon/opencamera/total.svg?color=black&style=flat-square&labelColor=f0f0f0)](https://github.com/yukimuon/OpenCamera/releases)
+
 ### What this app does
-Android->Windows Camera Sharing App
+
+This enable you to use Android phone's camera as a webcam on a Windows desktop
 
 ### What you need to use this app
-Under same WiFi network with local network access, or use desktop's WiFi hotspot  
+
+A Windows desktop, an Android phone, they are under same WiFi network with local network access
+
+1.   Install the [OpenCamera Windows software](https://github.com/yukimuon/OpenCamera/releases/tag/2.1.2) on your desktop, then install [the OpenCamera Android app](https://play.google.com/store/apps/details?id=com.cns.encom) on your phone.
+2.   Open the OpenCamera Windows software, it will create a virtual camera device. On your desktop, input the IP address prompted on the phone app to pair the desktop and your phone.  
+3.   Now, your desktop can access the camera through our app on your phone.
+
 
 ### Compatibility
+
 Due to DirectShow, not all programs can use the virtual cam on your device.  
 Software compatibility:  
 
