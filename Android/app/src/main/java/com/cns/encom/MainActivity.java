@@ -1,6 +1,7 @@
 package com.cns.encom;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -54,18 +55,19 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     boolean rtspServerStarted = false;
     String[] ips = {"0","0","0","0"};
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         Context context = getApplicationContext();
-        wifiMgr = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
-        camMgr = (CameraManager) context.getSystemService(context.CAMERA_SERVICE);
+        wifiMgr = (WifiManager) context.getSystemService(WIFI_SERVICE);
+        camMgr = (CameraManager) context.getSystemService(CAMERA_SERVICE);
 
-        TextView term = findViewById(R.id.textView);
+        @SuppressLint("CutPasteId") TextView term = findViewById(R.id.textView);
         term.setMovementMethod(new ScrollingMovementMethod());
 
         mSurfaceView = findViewById(R.id.surfaceView);
@@ -93,9 +95,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
         String tip = ips[3]+"."+ips[2]+"."+ips[1]+"."+ips[0];
         TextView myip = findViewById(R.id.Indicator_myip);
-        myip.setText("Device IP: "+tip);
+        myip.setText("Current device IP: "+tip);
 
-        TextView logsWindows = findViewById(R.id.textView);
+        @SuppressLint("CutPasteId") TextView logsWindows = findViewById(R.id.textView);
         try {
             logsWindows.setText("Online cameras: "+Arrays.toString(camMgr.getCameraIdList())+"\n");
         }catch (Exception e){
@@ -184,29 +186,22 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
                 for(int j = 0; j < 10; j++)
                 {
-                    final String target = ips[3]+"."+ips[2]+"."+ips[1]+"."+String.valueOf(i+j);
+                    final String target = ips[3]+"."+ips[2]+"."+ips[1]+"."+ (i + j);
                     final int ij = i + j;
-                    pool.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            boolean alive=false;
-                            try {
-                                final InetAddress tarmachine = InetAddress.getByName(target);
-                                alive=tarmachine.isReachable(400);
+                    pool.submit(() -> {
+                        boolean alive;
+                        try {
+                            final InetAddress tarmachine = InetAddress.getByName(target);
+                            alive=tarmachine.isReachable(400);
 
-                            }catch(Exception e) {
-                                Log.d("ScanNet", "run: " + ij + " " + e.getMessage());
-                                alive=false;
-                            }
-                            final String targetCopy = target;
-                            final boolean aliveCopy = alive;
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (aliveCopy) view.append(targetCopy + " Alive \n");
-                                }
-                            });
+                        }catch(Exception e) {
+                            Log.d("ScanNet", "run: " + ij + " " + e.getMessage());
+                            alive=false;
                         }
+                        final boolean aliveCopy = alive;
+                        runOnUiThread(() -> {
+                            if (aliveCopy) view.append(target + " Alive \n");
+                        });
                     });
                 }
 
@@ -215,13 +210,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 
+    @SuppressLint("SetTextI18n")
     public void connect_onclick(View view){
         EditText editText=findViewById(R.id.ip_form);
         String tarip=editText.getText().toString();
         TextView logsWindows = findViewById(R.id.textView);
         logsWindows.append("Target machine IP: "+tarip+"\n");
         TextView indicator_host = findViewById(R.id.Indicator_hostip);
-        indicator_host.setText("Host: "+tarip);
+        indicator_host.setText("Connecting to "+tarip);
         switchCam = true;
         if(mConnThread != null && mConnThread.isAlive())
             logsWindows.append("You have already connected\n");
@@ -231,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
     }
 
+    @SuppressLint("SetTextI18n")
     public void disconnect_onclick(View view) {
         TextView logsWindows = findViewById(R.id.textView);
 
@@ -244,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             }
             logsWindows.append("You have disconnected\n");
             TextView indicator_host = findViewById(R.id.Indicator_hostip);
-            indicator_host.setText("Host: 0.0.0.0");
+            indicator_host.setText("Host: ?.?.?.?");
             mConnThread = null;
             switchCam = false;
             connectionUp = false;
@@ -294,14 +291,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
 
             mainActivity.startService(service);
             rtspServerStarted = true;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    TextView logsWindows = findViewById(R.id.textView);
-                    logsWindows.append("RTSP Server started\n");
-                    CheckBox cameraCheckbox = findViewById(R.id.checkBox);
-                    cameraCheckbox.setChecked(true);
-                }
+            runOnUiThread(() -> {
+                TextView logsWindows = findViewById(R.id.textView);
+                logsWindows.append("RTSP Server started\n");
+                CheckBox cameraCheckbox = findViewById(R.id.checkBox);
+                cameraCheckbox.setChecked(true);
             });
 
             DataOutputStream out;
@@ -318,18 +312,15 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             while(connectionUp){
                 try{out.writeChar(1);}
                 catch(IOException e){break;}
-                try{Thread.sleep(50);}
+                try{Thread.sleep(1000);}
                 catch(InterruptedException e){break;}
             }
 
             mainActivity.stopService(service);
             rtspServerStarted = false;
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    TextView logsWindows = findViewById(R.id.textView);
-                    logsWindows.append("RTSP Server stopped\n");
-                }
+            runOnUiThread(() -> {
+                TextView logsWindows = findViewById(R.id.textView);
+                logsWindows.append("RTSP Server stopped\n");
             });
 
             try{
