@@ -302,9 +302,8 @@ public abstract class VideoStream extends MediaStream {
 	}
 
 	public synchronized void startPreview() 
-			throws CameraInUseException, 
-			InvalidSurfaceException, 
-			RuntimeException {
+			throws
+            RuntimeException {
 		
 		mCameraOpenedManually = true;
 		if (!mPreviewStarted) {
@@ -379,7 +378,7 @@ public abstract class VideoStream extends MediaStream {
 
 		// This will skip the MPEG4 header if this step fails we can't stream anything :(
 		try {
-			byte buffer[] = new byte[4];
+			byte[] buffer = new byte[4];
 			// Skip all atoms preceding mdat atom
 			while (!Thread.interrupted()) {
 				while (is.read() != 'm');
@@ -454,7 +453,7 @@ public abstract class VideoStream extends MediaStream {
 
 		Camera.PreviewCallback callback = new Camera.PreviewCallback() {
 			long now = System.nanoTime()/1000, oldnow = now, i=0;
-			ByteBuffer[] inputBuffers = mMediaCodec.getInputBuffers();
+			final ByteBuffer[] inputBuffers = mMediaCodec.getInputBuffers();
 			@Override
 			public void onPreviewFrame(byte[] data, Camera camera) {
 				oldnow = now;

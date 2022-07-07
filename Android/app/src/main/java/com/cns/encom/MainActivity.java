@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -53,7 +54,9 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     private connectionThread mConnThread = null;
     boolean connectionUp = false;
     boolean rtspServerStarted = false;
+    public int camera_device_id = 0;
     String[] ips = {"0","0","0","0"};
+
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -220,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         indicator_host.setText("Connecting to "+tarip);
         switchCam = true;
         if(mConnThread != null && mConnThread.isAlive())
-            logsWindows.append("You have already connected\n");
+            logsWindows.append("Already connected\n");
         else{
             mConnThread = new connectionThread(tarip, this);
             mConnThread.start();
@@ -230,16 +233,11 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
     @SuppressLint("SetTextI18n")
     public void disconnect_onclick(View view) {
         TextView logsWindows = findViewById(R.id.textView);
-
         try{
             if (mConnThread != null) {
-                try {
-                    mConnThread.join();
-                } catch (InterruptedException e) {
-                    mConnThread.interrupt();
-                }
+                mConnThread.interrupt();
             }
-            logsWindows.append("You have disconnected\n");
+            logsWindows.append("Already disconnected\n");
             TextView indicator_host = findViewById(R.id.Indicator_hostip);
             indicator_host.setText("Host: ?.?.?.?");
             mConnThread = null;
@@ -251,6 +249,22 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
         }
 
     }
+
+    public void camswitch_onclick(View view) {
+        camera_device_id +=1;
+        try {
+            camera_device_id = camera_device_id%camMgr.getCameraIdList().length;
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+
+        TextView logsWindows = findViewById(R.id.textView);
+        if (camera_device_id!=0){
+            SessionBuilder.getInstance().setCamera(camera_device_id);
+        }
+
+    }
+
 
     public class connectionThread extends Thread{
         String ipaddress;
@@ -268,9 +282,14 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
             Socket socket;
             try {
                 socket = new Socket(ipaddress, 65500);
-            }catch(IOException e){return;}
+            }catch(IOException e){
+                TextView logsWindows = findViewById(R.id.textView);
+                logsWindows.append("Can't establish connection to machine at"+ipaddress+"\n");
+                return;
+            }
 
-            Log.d("connectionThread", "run: socket connected");
+            Log.d("connectionThread", "Thread run: socket connected");
+
 
             SessionBuilder.getInstance()
                     .setSurfaceView(mSurfaceView)
@@ -279,18 +298,22 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                     .setAudioEncoder(SessionBuilder.AUDIO_NONE)
                     .setVideoEncoder(SessionBuilder.VIDEO_H264);
 
+
             int newPort = getRandomNumber(1000, 2000);
             // Sets the port of the RTSP server to random number
             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mainActivity).edit();
             editor.putString(RtspServer.KEY_PORT, String.valueOf(newPort));
             editor.apply();
 
+
+//            Clean up running service
             if(rtspServerStarted)
                 mainActivity.stopService(service);
             connectionUp = true;
 
             mainActivity.startService(service);
             rtspServerStarted = true;
+
             runOnUiThread(() -> {
                 TextView logsWindows = findViewById(R.id.textView);
                 logsWindows.append("RTSP Server started\n");
@@ -327,21 +350,18 @@ public class MainActivity extends AppCompatActivity implements SurfaceHolder.Cal
                 socket.shutdownOutput();
                 socket.close();
             }
-            catch(IOException e){}
+            catch(IOException ignored){}
 
             while(isRTSPServiceAlive()){
-                try{Thread.sleep(50);}
+                try{Thread.sleep(1000);}
                 catch(InterruptedException e){break;}
             }
 
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
-                    mSurfaceHolder.setFormat(PixelFormat.OPAQUE);
-                    CheckBox cameraCheckbox = findViewById(R.id.checkBox);
-                    cameraCheckbox.setChecked(false);
-                }
+            runOnUiThread(() -> {
+                mSurfaceHolder.setFormat(PixelFormat.TRANSPARENT);
+                mSurfaceHolder.setFormat(PixelFormat.OPAQUE);
+                CheckBox cameraCheckbox = findViewById(R.id.checkBox);
+                cameraCheckbox.setChecked(false);
             });
         }
 

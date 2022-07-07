@@ -39,7 +39,7 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 	private Thread t = null;
 	private int naluLength = 0;
 	private long delay = 0, oldtime = 0;
-	private Statistics stats = new Statistics();
+	private final Statistics stats = new Statistics();
 	private byte[] sps = null, pps = null, stapa = null;
 	byte[] header = new byte[5];	
 	private int count = 0;

@@ -101,15 +101,15 @@ public class Session {
 	private String mOrigin;
 	private String mDestination;
 	private int mTimeToLive = 64;
-	private long mTimestamp;
+	private final long mTimestamp;
 
 	private AudioStream mAudioStream = null;
 	private VideoStream mVideoStream = null;
 
 	private Callback mCallback;
-	private Handler mMainHandler;
+	private final Handler mMainHandler;
 
-	private Handler mHandler;
+	private final Handler mHandler;
 
 	/** 
 	 * Creates a streaming session that can be customized by adding tracks.
@@ -136,10 +136,10 @@ public class Session {
 		 * Called periodically to inform you on the bandwidth 
 		 * consumption of the streams when streaming. 
 		 */
-		public void onBitrateUpdate(long bitrate);
+        void onBitrateUpdate(long bitrate);
 
 		/** Called when some error occurs. */
-		public void onSessionError(int reason, int streamType, Exception e);
+        void onSessionError(int reason, int streamType, Exception e);
 
 		/** 
 		 * Called when the previw of the {@link VideoStream}
@@ -148,7 +148,7 @@ public class Session {
 		 * {@link Callback#onSessionError(int, int, Exception)} will be
 		 * called instead of {@link Callback#onPreviewStarted()}.
 		 */
-		public void onPreviewStarted();
+        void onPreviewStarted();
 
 		/** 
 		 * Called when the session has correctly been configured 
@@ -157,7 +157,7 @@ public class Session {
 		 * {@link Callback#onSessionError(int, int, Exception)} will be
 		 * called instead of  {@link Callback#onSessionConfigured()}.
 		 */
-		public void onSessionConfigured();
+        void onSessionConfigured();
 
 		/** 
 		 * Called when the streams of the session have correctly been started.
@@ -165,10 +165,10 @@ public class Session {
 		 * {@link Callback#onSessionError(int, int, Exception)} will be
 		 * called instead of  {@link Callback#onSessionStarted()}. 
 		 */
-		public void onSessionStarted();
+        void onSessionStarted();
 
 		/** Called when the stream of the session have been stopped. */
-		public void onSessionStopped();
+        void onSessionStopped();
 
 	}
 
@@ -363,8 +363,8 @@ public class Session {
 			public void run() {
 				try {
 					syncConfigure();
-				} catch (Exception e) {};
-			}
+				} catch (Exception e) {}
+            }
 		});
 	}	
 
@@ -375,11 +375,8 @@ public class Session {
 	 * an error occurs.	
 	 **/
 	public void syncConfigure()  
-			throws CameraInUseException, 
-			StorageUnavailableException,
-			ConfNotSupportedException, 
-			InvalidSurfaceException, 
-			RuntimeException,
+			throws
+            RuntimeException,
 			IOException {
 
 		for (int id=0;id<2;id++) {
@@ -431,12 +428,10 @@ public class Session {
 	 * @param id The id of the stream to start
 	 **/
 	public void syncStart(int id) 			
-			throws CameraInUseException, 
-			StorageUnavailableException,
-			ConfNotSupportedException, 
-			InvalidSurfaceException, 
-			UnknownHostException,
-			IOException {
+			throws CameraInUseException,
+            ConfNotSupportedException,
+			InvalidSurfaceException,
+            IOException {
 
 		Stream stream = id==0 ? mAudioStream : mVideoStream;
 		if (stream!=null && !stream.isStreaming()) {
@@ -482,12 +477,10 @@ public class Session {
 	 * Throws exceptions in addition to calling a callback.
 	 **/
 	public void syncStart() 			
-			throws CameraInUseException, 
-			StorageUnavailableException,
-			ConfNotSupportedException, 
-			InvalidSurfaceException, 
-			UnknownHostException,
-			IOException {
+			throws CameraInUseException,
+            ConfNotSupportedException,
+			InvalidSurfaceException,
+            IOException {
 
 		syncStart(1);
 		try {
@@ -709,7 +702,7 @@ public class Session {
 		});
 	}		
 
-	private Runnable mUpdateBitrate = new Runnable() {
+	private final Runnable mUpdateBitrate = new Runnable() {
 		@Override
 		public void run() {
 			if (isStreaming()) { 

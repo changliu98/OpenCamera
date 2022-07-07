@@ -38,7 +38,7 @@ public class MediaCodecInputStream extends InputStream {
 	public final String TAG = "MediaCodecInputStream"; 
 
 	private MediaCodec mMediaCodec = null;
-	private BufferInfo mBufferInfo = new BufferInfo();
+	private final BufferInfo mBufferInfo = new BufferInfo();
 	private ByteBuffer[] mBuffers = null;
 	private ByteBuffer mBuffer = null;
 	private int mIndex = -1;

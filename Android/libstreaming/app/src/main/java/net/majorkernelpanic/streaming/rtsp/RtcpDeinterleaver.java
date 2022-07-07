@@ -28,10 +28,10 @@ class RtcpDeinterleaver extends InputStream implements Runnable {
 	public final static String TAG = "RtcpDeinterleaver";
 	
 	private IOException mIOException;
-	private InputStream mInputStream;
-	private PipedInputStream mPipedInputStream;
+	private final InputStream mInputStream;
+	private final PipedInputStream mPipedInputStream;
 	private PipedOutputStream mPipedOutputStream;
-	private byte[] mBuffer;
+	private final byte[] mBuffer;
 	
 	public RtcpDeinterleaver(InputStream inputStream) {
 		mInputStream = inputStream;

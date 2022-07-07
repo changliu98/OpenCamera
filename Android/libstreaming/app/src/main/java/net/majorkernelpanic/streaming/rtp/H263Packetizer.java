@@ -33,7 +33,7 @@ import android.util.Log;
 public class H263Packetizer extends AbstractPacketizer implements Runnable {
 
 	public final static String TAG = "H263Packetizer";
-	private Statistics stats = new Statistics();
+	private final Statistics stats = new Statistics();
 
 	private Thread t;
 

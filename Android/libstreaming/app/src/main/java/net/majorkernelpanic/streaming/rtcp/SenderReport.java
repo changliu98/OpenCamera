@@ -43,11 +43,11 @@ public class SenderReport {
 
 	private int mTransport;
 	private OutputStream mOutputStream = null;
-	private byte[] mBuffer = new byte[MTU];
+	private final byte[] mBuffer = new byte[MTU];
 	private int mSSRC, mPort = -1;
 	private int mOctetCount = 0, mPacketCount = 0;
 	private long interval, delta, now, oldnow;
-	private byte mTcpHeader[];
+	private byte[] mTcpHeader;
 
 	public SenderReport(int ssrc) throws IOException {
 		super();

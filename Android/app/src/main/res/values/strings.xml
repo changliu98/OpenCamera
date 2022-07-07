@@ -8,6 +8,7 @@
     <string name="button2">Connect</string>
     <string name="button3">Disconnect</string>
     <string name="button4">Clear</string>
+    <string name="button5">Switch Camera</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>

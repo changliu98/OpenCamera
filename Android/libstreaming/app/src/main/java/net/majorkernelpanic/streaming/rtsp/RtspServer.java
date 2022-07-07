@@ -249,7 +249,7 @@ public class RtspServer extends Service {
 		mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
 	}
 
-	private OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener() {
+	private final OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener = new OnSharedPreferenceChangeListener() {
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 
@@ -487,7 +487,11 @@ public class RtspServer extends Service {
                 else if (request.method.equalsIgnoreCase("SETUP")) {
                     Pattern p;
                     Matcher m;
-                    int p2, p1, ssrc, trackId, src[];
+                    int p2;
+                    int p1;
+                    int ssrc;
+                    int trackId;
+                    int[] src;
                     String destination;
 
                     p = Pattern.compile("trackID=(\\w+)", Pattern.CASE_INSENSITIVE);
@@ -608,8 +612,7 @@ public class RtspServer extends Service {
                 String received = auth.substring(auth.lastIndexOf(" ")+1);
                 String local = mUsername+":"+mPassword;
                 String localEncoded = Base64.encodeToString(local.getBytes(),Base64.NO_WRAP);
-                if(localEncoded.equals(received))
-                    return true;
+                return localEncoded.equals(received);
             }
 
             return false;
@@ -628,7 +631,7 @@ public class RtspServer extends Service {
 		public HashMap<String,String> headers = new HashMap<>();
 
 		/** Parse the method, uri & headers of a RTSP request */
-		public static Request parseRequest(BufferedReader input) throws IOException, IllegalStateException, SocketException {
+		public static Request parseRequest(BufferedReader input) throws IOException, IllegalStateException {
 			Request request = new Request();
 			String line;
 			Matcher matcher;

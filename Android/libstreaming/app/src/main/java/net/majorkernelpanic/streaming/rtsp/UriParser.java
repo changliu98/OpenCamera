@@ -91,10 +91,7 @@ public class UriParser {
 
 				// FLASH ON/OFF
 				if (paramName.equalsIgnoreCase("flash")) {
-					if (paramValue.equalsIgnoreCase("on"))
-						builder.setFlashEnabled(true);
-					else
-						builder.setFlashEnabled(false);
+                    builder.setFlashEnabled(paramValue.equalsIgnoreCase("on"));
 				}
 
 				// CAMERA -> the client can choose between the front facing camera and the back facing camera

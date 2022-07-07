@@ -100,7 +100,7 @@ public class AACADTSPacketizer extends AbstractPacketizer implements Runnable {
 				fill(header, 2, 5);
 
 				// The protection bit indicates whether or not the header contains the two extra bytes
-				protection = (header[1]&0x01)>0 ? true : false;
+				protection = (header[1] & 0x01) > 0;
 				frameLength = (header[3]&0x03) << 11 | 
 						(header[4]&0xFF) << 3 | 
 						(header[5]&0xFF) >> 5 ;

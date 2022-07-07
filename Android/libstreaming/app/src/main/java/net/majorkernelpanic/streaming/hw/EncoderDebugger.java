@@ -82,12 +82,14 @@ public class EncoderDebugger {
 	private int mDecoderColorFormat, mEncoderColorFormat;
 	private String mDecoderName, mEncoderName, mErrorLog;
 	private MediaCodec mEncoder, mDecoder;
-	private int mWidth, mHeight, mSize;
+	private final int mWidth;
+    private final int mHeight;
+    private final int mSize;
 	private byte[] mSPS, mPPS;
 	private byte[] mData, mInitialImage;
 	private MediaFormat mDecOutputFormat;
 	private NV21Convertor mNV21;
-	private SharedPreferences mPreferences;
+	private final SharedPreferences mPreferences;
 	private byte[][] mVideo, mDecodedVideo;
 	private String mB64PPS, mB64SPS;
 
@@ -323,14 +325,11 @@ public class EncoderDebugger {
 		if (mPreferences.contains(PREF_PREFIX+resolution+"lastSdk")) {
 			int lastSdk = mPreferences.getInt(PREF_PREFIX+resolution+"lastSdk", 0);
 			int lastVersion = mPreferences.getInt(PREF_PREFIX+resolution+"lastVersion", 0);
-			if (Build.VERSION.SDK_INT>lastSdk || VERSION>lastVersion) {
-				return true;
-			}
+            return Build.VERSION.SDK_INT > lastSdk || VERSION > lastVersion;
 		} else {
 			return true;
 		}
-		return false;
-	}
+    }
 
 
 	/**

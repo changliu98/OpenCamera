@@ -36,7 +36,7 @@ public class MP4Parser {
 
 	private static final String TAG = "MP4Parser";
 
-	private HashMap<String, Long> mBoxes = new HashMap<>();
+	private final HashMap<String, Long> mBoxes = new HashMap<>();
 	private final RandomAccessFile mFile;
 	private long mPos = 0;
 
@@ -46,7 +46,7 @@ public class MP4Parser {
 		return new MP4Parser(path);
 	}	
 	
-	private MP4Parser(final String path) throws IOException, FileNotFoundException {
+	private MP4Parser(final String path) throws IOException {
 		mFile = new RandomAccessFile(new File(path), "r");
 		try {
 			parse("",mFile.length());
@@ -59,8 +59,8 @@ public class MP4Parser {
 	public void close() {
 		try {
 			mFile.close();
-		} catch (Exception e) {};
-	}
+		} catch (Exception e) {}
+    }
 	
 	public long getBoxPos(String box) throws IOException {
 		Long r = mBoxes.get(box);
@@ -151,8 +151,8 @@ public class MP4Parser {
 
 class StsdBox {
 
-	private RandomAccessFile fis;
-	private byte[] buffer = new byte[4];
+	private final RandomAccessFile fis;
+	private final byte[] buffer = new byte[4];
 	private long pos = 0;
 
 	private byte[] pps;

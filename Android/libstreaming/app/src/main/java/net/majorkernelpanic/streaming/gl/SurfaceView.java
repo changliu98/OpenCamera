@@ -81,7 +81,7 @@ public class SurfaceView extends android.view.SurfaceView implements Runnable, O
 	private final Object mSyncObject = new Object();
 
 	// Allows to force the aspect ratio of the preview
-	private ViewAspectRatioMeasurer mVARM = new ViewAspectRatioMeasurer();
+	private final ViewAspectRatioMeasurer mVARM = new ViewAspectRatioMeasurer();
 	
 	public SurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);

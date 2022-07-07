@@ -62,8 +62,8 @@ public class CodecManager {
 	 */
 	static class Selector {
 
-		private static HashMap<String,SparseArray<ArrayList<String>>> sHardwareCodecs = new HashMap<>();
-		private static HashMap<String,SparseArray<ArrayList<String>>> sSoftwareCodecs = new HashMap<>();
+		private static final HashMap<String,SparseArray<ArrayList<String>>> sHardwareCodecs = new HashMap<>();
+		private static final HashMap<String,SparseArray<ArrayList<String>>> sSoftwareCodecs = new HashMap<>();
 
 		/**
 		 * Determines the most appropriate encoder to compress the video from the Camera
@@ -195,16 +195,16 @@ public class CodecManager {
 
 	static class Translator {
 
-		private int mOutputColorFormat;
-		private int mWidth; 
-		private int mHeight;
-		private int mYStride;
-		private int mUVStride;
-		private int mYSize;
-		private int mUVSize;
-		private int bufferSize;
+		private final int mOutputColorFormat;
+		private final int mWidth;
+		private final int mHeight;
+		private final int mYStride;
+		private final int mUVStride;
+		private final int mYSize;
+		private final int mUVSize;
+		private final int bufferSize;
 		private int i;
-		private byte[] tmp;
+		private final byte[] tmp;
 
 		public Translator(int outputColorFormat, int width, int height) {
 			mOutputColorFormat = outputColorFormat;

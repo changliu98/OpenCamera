@@ -43,7 +43,7 @@ public class SurfaceManager {
 	private EGLSurface mEGLSurface = null;
 	private EGLDisplay mEGLDisplay = null;
 
-	private Surface mSurface;
+	private final Surface mSurface;
 
 	/**
 	 * Creates an EGL context and an EGL surface.

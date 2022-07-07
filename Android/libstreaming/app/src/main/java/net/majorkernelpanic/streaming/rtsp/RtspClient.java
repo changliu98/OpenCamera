@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -107,7 +108,7 @@ public class RtspClient {
 	}
 	
 	
-	private Parameters mTmpParameters;
+	private final Parameters mTmpParameters;
 	private Parameters mParameters;
 
 	private int mCSeq;
@@ -117,7 +118,7 @@ public class RtspClient {
 	private BufferedReader mBufferedReader;
 	private OutputStream mOutputStream;
 	private Callback mCallback;
-	private Handler mMainHandler;
+	private final Handler mMainHandler;
 	private Handler mHandler;
 
 	/**
@@ -125,7 +126,7 @@ public class RtspClient {
 	 * RTSP server (for example your Wowza Media Server).
 	 */
 	public interface Callback {
-		public void onRtspUpdate(int message, Exception exception);
+		void onRtspUpdate(int message, Exception exception);
 	}
 
 	public RtspClient() {
@@ -314,7 +315,7 @@ public class RtspClient {
 	/**
 	 * Forges and sends the ANNOUNCE request 
 	 */
-	private void sendRequestAnnounce() throws IllegalStateException, SocketException, IOException {
+	private void sendRequestAnnounce() throws IllegalStateException, IOException {
 
 		String body = mParameters.session.getSessionDescription();
 		String request = "ANNOUNCE rtsp://"+mParameters.host+":"+mParameters.port+mParameters.path+" RTSP/1.0\r\n" +
@@ -324,7 +325,7 @@ public class RtspClient {
 				body;
 		Log.i(TAG,request.substring(0, request.indexOf("\r\n")));
 
-		mOutputStream.write(request.getBytes("UTF-8"));
+		mOutputStream.write(request.getBytes(StandardCharsets.UTF_8));
 		mOutputStream.flush();
 		Response response = Response.parseResponse(mBufferedReader);
 
@@ -375,7 +376,7 @@ public class RtspClient {
 
 			Log.i(TAG,request.substring(0, request.indexOf("\r\n")));
 
-			mOutputStream.write(request.getBytes("UTF-8"));
+			mOutputStream.write(request.getBytes(StandardCharsets.UTF_8));
 			mOutputStream.flush();
 			response = Response.parseResponse(mBufferedReader);
 
@@ -390,7 +391,7 @@ public class RtspClient {
 	/**
 	 * Forges and sends the SETUP request 
 	 */
-	private void sendRequestSetup() throws IllegalStateException, SocketException, IOException {
+	private void sendRequestSetup() throws IllegalStateException, IOException {
 		for (int i=0;i<2;i++) {
 			Stream stream = mParameters.session.getTrack(i);
 			if (stream != null) {
@@ -402,7 +403,7 @@ public class RtspClient {
 
 				Log.i(TAG,request.substring(0, request.indexOf("\r\n")));
 
-				mOutputStream.write(request.getBytes("UTF-8"));
+				mOutputStream.write(request.getBytes(StandardCharsets.UTF_8));
 				mOutputStream.flush();
 				Response response = Response.parseResponse(mBufferedReader);
 				Matcher m;
@@ -437,12 +438,12 @@ public class RtspClient {
 	/**
 	 * Forges and sends the RECORD request 
 	 */
-	private void sendRequestRecord() throws IllegalStateException, SocketException, IOException {
+	private void sendRequestRecord() throws IllegalStateException, IOException {
 		String request = "RECORD rtsp://"+mParameters.host+":"+mParameters.port+mParameters.path+" RTSP/1.0\r\n" +
 				"Range: npt=0.000-\r\n" +
 				addHeaders();
 		Log.i(TAG,request.substring(0, request.indexOf("\r\n")));
-		mOutputStream.write(request.getBytes("UTF-8"));
+		mOutputStream.write(request.getBytes(StandardCharsets.UTF_8));
 		mOutputStream.flush();
 		Response.parseResponse(mBufferedReader);
 	}
@@ -453,7 +454,7 @@ public class RtspClient {
 	private void sendRequestTeardown() throws IOException {
 		String request = "TEARDOWN rtsp://"+mParameters.host+":"+mParameters.port+mParameters.path+" RTSP/1.0\r\n" + addHeaders();
 		Log.i(TAG,request.substring(0, request.indexOf("\r\n")));
-		mOutputStream.write(request.getBytes("UTF-8"));
+		mOutputStream.write(request.getBytes(StandardCharsets.UTF_8));
 		mOutputStream.flush();
 	}
 	
@@ -463,7 +464,7 @@ public class RtspClient {
 	private void sendRequestOption() throws IOException {
 		String request = "OPTIONS rtsp://"+mParameters.host+":"+mParameters.port+mParameters.path+" RTSP/1.0\r\n" + addHeaders();
 		Log.i(TAG,request.substring(0, request.indexOf("\r\n")));
-		mOutputStream.write(request.getBytes("UTF-8"));
+		mOutputStream.write(request.getBytes(StandardCharsets.UTF_8));
 		mOutputStream.flush();
 		Response.parseResponse(mBufferedReader);
 	}	
@@ -480,7 +481,7 @@ public class RtspClient {
 	 * If the connection with the RTSP server is lost, we try to reconnect to it as
 	 * long as {@link #stopStream()} is not called.
 	 */
-	private Runnable mConnectionMonitor = new Runnable() {
+	private final Runnable mConnectionMonitor = new Runnable() {
 		@Override
 		public void run() {
 			if (mState == STATE_STARTED) {
@@ -500,7 +501,7 @@ public class RtspClient {
 	};
 
 	/** Here, we try to reconnect to the RTSP. */
-	private Runnable mRetryConnection = new Runnable() {
+	private final Runnable mRetryConnection = new Runnable() {
 		@Override
 		public void run() {
 			if (mState == STATE_STARTED) {
@@ -539,10 +540,10 @@ public class RtspClient {
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance("MD5");
-			return bytesToHex(md.digest(buffer.getBytes("UTF-8")));
+			return bytesToHex(md.digest(buffer.getBytes(StandardCharsets.UTF_8)));
 		} catch (NoSuchAlgorithmException ignore) {
-		} catch (UnsupportedEncodingException e) {}
-		return "";
+		}
+        return "";
 	}
 
 	private void postMessage(final int message) {
@@ -585,7 +586,7 @@ public class RtspClient {
 		public HashMap<String,String> headers = new HashMap<>();
 
 		/** Parse the method, URI & headers of a RTSP request */
-		public static Response parseResponse(BufferedReader input) throws IOException, IllegalStateException, SocketException {
+		public static Response parseResponse(BufferedReader input) throws IOException, IllegalStateException {
 			Response response = new Response();
 			String line;
 			Matcher matcher;
